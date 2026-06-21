@@ -120,6 +120,14 @@ def build_fy_instructions(formation_context: dict) -> str:
     briefing_summary = formation_context.get("briefing_summary")
     active_project = formation_context.get("active_project") or {}
 
+    # Tier-based mode — Independent = directive (FY leads), Operator = peer (creator drives)
+    tier = formation_context.get("tier", "independent")
+    if tier == "operator":
+        mode_note = "PEER MODE: The creator drives. You are available, sharp, never preachy. Respond when called upon."
+    else:
+        mode_note = "DIRECTIVE MODE: You initiate. Always propose the next concrete action. Lead — do not wait to be asked."
+    parts.append(mode_note)
+
     context_lines = []
     if studio_name:
         context_lines.append(f"Studio name: {studio_name}")
