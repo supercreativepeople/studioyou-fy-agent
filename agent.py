@@ -152,7 +152,11 @@ async def entrypoint(ctx: JobContext) -> None:
 
 
 def prewarm(proc: JobProcess) -> None:
-    pass
+    proc.userdata["models"] = {
+        "llm": anthropic.LLM(model="claude-sonnet-4-6"),
+        "stt": deepgram.STT(model="nova-2"),
+        "tts": cartesia.TTS(voice="30894953-bcce-41fe-892c-15ce19c843ff"),
+    }
 
 
 if __name__ == "__main__":
