@@ -1,15 +1,7 @@
-# LiveKit Agents framework + plugins for FutureYou
-#
-# silero extra = local VAD (no API key needed)
-# inference (STT/TTS via LiveKit Inference) is included in livekit-agents
-# core — no separate Deepgram/Cartesia packages or accounts needed.
-livekit-agents[silero]~=1.0
-
-# Claude as the agent's LLM — verified against current docs 2026-06-15,
-# defaults to claude-sonnet-4-6
+livekit-agents~=1.6
 livekit-plugins-anthropic
-
-# Tavus avatar rendering (transport_type=livekit, pipeline_mode=echo)
 livekit-plugins-tavus
-
 python-dotenv
+livekit-plugins-deepgram
+livekit-plugins-cartesia
+# build: 2026-06-23
