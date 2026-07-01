@@ -1,6 +1,6 @@
 livekit-agents~=1.6
 livekit-plugins-anthropic
-livekit-plugins-tavus
+livekit-plugins-runway
 python-dotenv
 livekit-plugins-deepgram
 livekit-plugins-cartesia

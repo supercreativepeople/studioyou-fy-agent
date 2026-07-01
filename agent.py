@@ -2,7 +2,7 @@
 FutureYou LiveKit Agent — Session U.
 
 Architecture: Claude (claude-sonnet-4-6) as the conversational brain.
-Tavus as avatar video rendering only (transport_type=livekit, pipeline_mode=echo).
+Runway Characters as avatar video rendering only (LiveKit Agents integration).
 STT: Deepgram nova-2 (always on — voice input available regardless of avatar state)
 TTS: Cartesia Parker voice (active when avatar is on)
 Text input: data_received on fy_chat topic (dashboard publishData — livekit-client 1.x compatible)
@@ -35,7 +35,7 @@ from livekit.agents import (
     function_tool,
 )
 from livekit.agents.voice.room_io import RoomOptions
-from livekit.plugins import anthropic, cartesia, deepgram, tavus
+from livekit.plugins import anthropic, cartesia, deepgram, runway
 
 from prompts import (
     build_fy_instructions,
@@ -45,8 +45,7 @@ from prompts import (
 
 logger = logging.getLogger("futureyou-agent")
 
-STOCK_REPLICA_ID = os.environ.get("TAVUS_REPLICA_ID", "rf8f3aa4b33e")
-TAVUS_LIVEKIT_PERSONA_ID = os.environ.get("TAVUS_LIVEKIT_PERSONA_ID")
+RUNWAY_AVATAR_ID = os.environ.get("RUNWAY_AVATAR_ID")  # SCP DUDE avatar_id, dev.runwayml.com
 
 
 class FutureYouAgent(Agent):
@@ -128,15 +127,15 @@ async def entrypoint(ctx: JobContext) -> None:
         )
         logger.info("FY reply → fy_directive: %d chars", len(text))
 
-    if TAVUS_LIVEKIT_PERSONA_ID:
-        avatar = tavus.AvatarSession(
-            replica_id=STOCK_REPLICA_ID,
-            persona_id=TAVUS_LIVEKIT_PERSONA_ID,
+    if RUNWAY_AVATAR_ID:
+        avatar = runway.AvatarSession(
+            avatar_id=RUNWAY_AVATAR_ID,
+            # api_key defaults to RUNWAYML_API_SECRET env var
         )
         await avatar.start(session, room=ctx.room)
-        room_output_options = RoomOutputOptions(audio_enabled=True)
+        room_output_options = RoomOutputOptions(audio_enabled=False)
     else:
-        logger.warning("TAVUS_LIVEKIT_PERSONA_ID not set — audio/text only.")
+        logger.warning("RUNWAY_AVATAR_ID not set — audio/text only.")
         room_output_options = RoomOutputOptions()
 
     await session.start(
