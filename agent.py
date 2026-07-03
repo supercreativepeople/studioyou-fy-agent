@@ -136,6 +136,16 @@ async def entrypoint(ctx: JobContext) -> None:
                 text = msg["text"]
                 logger.info("FY chat received: %d chars", len(text))
                 asyncio.ensure_future(session.generate_reply(user_input=text))
+            elif msg.get("type") == "fy_say_verbatim" and msg.get("text"):
+                # Direct TTS, no LLM turn — for scripted lines (e.g. the triage
+                # handoff line) that must be spoken exactly, not decided on by
+                # the model. generate_reply()+a "[SPOKEN LINE]" text hack was
+                # the old approach; the model had no system-prompt awareness of
+                # that convention and would truncate/paraphrase instead of
+                # reciting verbatim. session.say() bypasses the LLM entirely.
+                text = msg["text"]
+                logger.info("FY say-verbatim received: %d chars", len(text))
+                asyncio.ensure_future(session.say(text, allow_interruptions=False))
             elif msg.get("type") == "fy_avatar_control":
                 enabled = bool(msg.get("on"))
                 logger.info("Avatar toggle received: on=%s", enabled)
