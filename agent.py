@@ -12,6 +12,12 @@ Session U changes:
 - Inbound text via data_received handler on fy_chat topic → session.generate_reply(user_input)
 - Agent publishes text responses to fy_directive data channel for chat panel
   via conversation_item_added event (role=assistant messages only)
+
+Session AC change:
+- fy_avatar_control topic (data_received) toggles the live Runway AvatarSession
+  on/off. Runway bills per active-session-time (2 credits / 6s), not per
+  utterance, so this closes/reopens the AvatarSession rather than just muting —
+  that's the only way to actually stop the charge mid-conversation.
 """
 
 import asyncio
@@ -91,6 +97,35 @@ async def entrypoint(ctx: JobContext) -> None:
         tts=cartesia.TTS(voice="30894953-bcce-41fe-892c-15ce19c843ff"),
     )
 
+    # avatar_state holds the live runway.AvatarSession (or None when toggled off).
+    # Runway bills 2 credits upfront + 2 credits per 6s of ACTIVE avatar-session
+    # time — not per utterance — so muting playback client-side does nothing to
+    # stop the charge. The only documented way to stop billing mid-session is to
+    # close the AvatarSession (same path the plugin runs on normal job shutdown);
+    # toggling back on means starting a fresh AvatarSession instance.
+    avatar_state = {"session": None, "lock": asyncio.Lock()}
+
+    async def start_avatar():
+        async with avatar_state["lock"]:
+            if avatar_state["session"] is not None or not RUNWAY_AVATAR_ID:
+                return
+            av = runway.AvatarSession(avatar_id=RUNWAY_AVATAR_ID)
+            await av.start(session, room=ctx.room)
+            avatar_state["session"] = av
+            logger.info("Avatar session started")
+
+    async def stop_avatar():
+        async with avatar_state["lock"]:
+            av = avatar_state["session"]
+            if av is None:
+                return
+            avatar_state["session"] = None
+            try:
+                await av.aclose()
+                logger.info("Avatar session closed — Runway billing stopped")
+            except Exception:
+                logger.exception("Error closing avatar session")
+
     # Handle incoming text from dashboard chat panel (publishData on fy_chat topic)
     @ctx.room.on("data_received")
     def on_data_received(data_packet):
@@ -101,6 +136,10 @@ async def entrypoint(ctx: JobContext) -> None:
                 text = msg["text"]
                 logger.info("FY chat received: %d chars", len(text))
                 asyncio.ensure_future(session.generate_reply(user_input=text))
+            elif msg.get("type") == "fy_avatar_control":
+                enabled = bool(msg.get("on"))
+                logger.info("Avatar toggle received: on=%s", enabled)
+                asyncio.ensure_future(start_avatar() if enabled else stop_avatar())
         except Exception:
             logger.exception("Error handling data_received")
 
@@ -128,11 +167,7 @@ async def entrypoint(ctx: JobContext) -> None:
         logger.info("FY reply → fy_directive: %d chars", len(text))
 
     if RUNWAY_AVATAR_ID:
-        avatar = runway.AvatarSession(
-            avatar_id=RUNWAY_AVATAR_ID,
-            # api_key defaults to RUNWAYML_API_SECRET env var
-        )
-        await avatar.start(session, room=ctx.room)
+        await start_avatar()
         room_output_options = RoomOutputOptions(audio_enabled=False)
     else:
         logger.warning("RUNWAY_AVATAR_ID not set — audio/text only.")
