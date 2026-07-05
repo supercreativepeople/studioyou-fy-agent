@@ -129,9 +129,10 @@ async def entrypoint(ctx: JobContext) -> None:
         llm=anthropic.LLM(model="claude-sonnet-4-6"),
         stt=deepgram.STT(model="nova-2"),
         tts=cartesia.TTS(
-            model="sonic-3.5",
+            model="sonic-3",
             voice="630ed21c-2c5c-41cf-9d82-10a7fd668370",  # Corey - Supportive Buddy, en-US male
-            speed=CARTESIA_TTS_SPEED,  # no-op on sonic-3.5 — speed/volume controls temporarily disabled per Cartesia's migration notes
+            pronunciation_dict_id=CARTESIA_PRONUNCIATION_DICT_ID,
+            speed=CARTESIA_TTS_SPEED,
         ),
     )
 
@@ -277,8 +278,9 @@ def prewarm(proc: JobProcess) -> None:
         "llm": anthropic.LLM(model="claude-sonnet-4-6"),
         "stt": deepgram.STT(model="nova-2"),
         "tts": cartesia.TTS(
-            model="sonic-3.5",
+            model="sonic-3",
             voice="630ed21c-2c5c-41cf-9d82-10a7fd668370",
+            pronunciation_dict_id=CARTESIA_PRONUNCIATION_DICT_ID,
             speed=CARTESIA_TTS_SPEED,
         ),
     }
