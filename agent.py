@@ -115,6 +115,57 @@ class FutureYouAgent(Agent):
         logger.info("FY recommended section=%s reason=%s", section_id, reason)
         return "noted"
 
+    @function_tool()
+    async def capture_vault_entry(
+        self,
+        context: RunContext,
+        building_slug: str,
+        section_name: str,
+        step_title: str,
+        captured_answer: str,
+    ) -> str:
+        """Call this when the creator's answer to the current step's open
+        question has been refined into something concrete and usable — not
+        a first pass, not a one-word answer, but something you could hand to
+        a collaborator and have it mean something. Set a fairly wide bar:
+        it doesn't need to be a finished or perfect answer, just something
+        you can actually interpret that genuinely satisfies what the step
+        asked. Don't call this for a raw first response that still needs
+        refining — keep working it with the creator until it lands, then
+        call this once, with your own distilled version of the answer, not
+        a verbatim quote of what they said.
+
+        Args:
+            building_slug: The building id (e.g. "ideate").
+            section_name: The exact section name (e.g. "Raw Idea").
+            step_title: The exact step title (e.g. "What's the Feeling?").
+            captured_answer: Your synthesized, refined version of what was
+                established — in your own words, capturing the real answer
+                the back-and-forth landed on.
+        """
+        payload = json.dumps(
+            {
+                "type": "fy_vault_capture",
+                "building_slug": building_slug,
+                "section_name": section_name,
+                "step_title": step_title,
+                "captured_answer": captured_answer,
+            }
+        ).encode("utf-8")
+        try:
+            await self._room.local_participant.publish_data(
+                payload, topic="fy_directive"
+            )
+        except Exception:
+            logger.exception(
+                "Failed to publish vault capture for %s / %s", section_name, step_title
+            )
+        logger.info(
+            "FY captured vault entry: building=%s section=%s step=%s",
+            building_slug, section_name, step_title,
+        )
+        return "captured"
+
 
 async def entrypoint(ctx: JobContext) -> None:
     await ctx.connect()
