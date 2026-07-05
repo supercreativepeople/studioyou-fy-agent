@@ -131,7 +131,6 @@ async def entrypoint(ctx: JobContext) -> None:
         tts=cartesia.TTS(
             model="sonic-3.5",
             voice="630ed21c-2c5c-41cf-9d82-10a7fd668370",  # Corey - Supportive Buddy, en-US male
-            pronunciation_dict_id=CARTESIA_PRONUNCIATION_DICT_ID,
             speed=CARTESIA_TTS_SPEED,  # no-op on sonic-3.5 — speed/volume controls temporarily disabled per Cartesia's migration notes
         ),
     )
@@ -280,7 +279,6 @@ def prewarm(proc: JobProcess) -> None:
         "tts": cartesia.TTS(
             model="sonic-3.5",
             voice="630ed21c-2c5c-41cf-9d82-10a7fd668370",
-            pronunciation_dict_id=CARTESIA_PRONUNCIATION_DICT_ID,
             speed=CARTESIA_TTS_SPEED,
         ),
     }
