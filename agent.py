@@ -18,6 +18,16 @@ Session AC change:
   on/off. Runway bills per active-session-time (2 credits / 6s), not per
   utterance, so this closes/reopens the AvatarSession rather than just muting —
   that's the only way to actually stop the charge mid-conversation.
+
+Session AD change:
+- Proactive avatar session rotation. Runway Characters sessions hard-cap at
+  5 minutes platform-side (confirmed via Runway docs; not client-settable,
+  and the installed plugin has no renew/extend call — only a creation-time
+  max_duration). Any conversation running past ~5 min drops the avatar with
+  no recovery. Fix: close and reopen a fresh AvatarSession every
+  AVATAR_ROTATION_SECONDS (270s, 30s margin before the cap), reusing the
+  Session AC billing-stop close/reopen plumbing. Rotation is cancelled
+  cleanly on manual toggle-off so it doesn't fire against a closed session.
 """
 
 import asyncio
@@ -103,9 +113,40 @@ async def entrypoint(ctx: JobContext) -> None:
     # stop the charge. The only documented way to stop billing mid-session is to
     # close the AvatarSession (same path the plugin runs on normal job shutdown);
     # toggling back on means starting a fresh AvatarSession instance.
-    avatar_state = {"session": None, "lock": asyncio.Lock()}
+    #
+    # Session AD: Runway Characters sessions hard-cap at 5 minutes, platform-side
+    # (confirmed via Runway's own docs — not a client-settable limit, and the
+    # installed plugin (1.6.4) has no renew/extend endpoint, only a creation-time
+    # max_duration). The only fix is rotation: close and reopen a fresh
+    # AvatarSession a safety margin before the cap. rotation_task holds the
+    # scheduled rotation so a manual toggle-off can cancel it cleanly.
+    AVATAR_ROTATION_SECONDS = 270  # 30s margin before Runway's 300s hard cap
 
-    async def start_avatar():
+    avatar_state = {"session": None, "lock": asyncio.Lock(), "rotation_task": None}
+
+    def _cancel_rotation_task():
+        t = avatar_state.get("rotation_task")
+        avatar_state["rotation_task"] = None
+        if t is not None and not t.done():
+            t.cancel()
+
+    async def _schedule_rotation():
+        _cancel_rotation_task()
+        avatar_state["rotation_task"] = asyncio.ensure_future(_rotate_after_delay())
+
+    async def _rotate_after_delay():
+        try:
+            await asyncio.sleep(AVATAR_ROTATION_SECONDS)
+        except asyncio.CancelledError:
+            return
+        # Clear our own ref before acting so the reopen's _schedule_rotation()
+        # doesn't try to cancel the task that's already finished sleeping.
+        avatar_state["rotation_task"] = None
+        logger.info("Avatar rotation: proactively closing/reopening before Runway's cap")
+        await _close_avatar_session()
+        await _open_avatar_session()
+
+    async def _open_avatar_session():
         async with avatar_state["lock"]:
             if avatar_state["session"] is not None or not RUNWAY_AVATAR_ID:
                 return
@@ -113,8 +154,9 @@ async def entrypoint(ctx: JobContext) -> None:
             await av.start(session, room=ctx.room)
             avatar_state["session"] = av
             logger.info("Avatar session started")
+        await _schedule_rotation()
 
-    async def stop_avatar():
+    async def _close_avatar_session():
         async with avatar_state["lock"]:
             av = avatar_state["session"]
             if av is None:
@@ -125,6 +167,13 @@ async def entrypoint(ctx: JobContext) -> None:
                 logger.info("Avatar session closed — Runway billing stopped")
             except Exception:
                 logger.exception("Error closing avatar session")
+
+    async def start_avatar():
+        await _open_avatar_session()
+
+    async def stop_avatar():
+        _cancel_rotation_task()
+        await _close_avatar_session()
 
     # Handle incoming text from dashboard chat panel (publishData on fy_chat topic)
     @ctx.room.on("data_received")
