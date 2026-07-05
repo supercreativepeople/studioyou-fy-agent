@@ -86,6 +86,14 @@ section than the one currently active, call the recommend_section tool with
 that section's id. Don't narrate the navigation out loud — just call the
 tool and keep talking naturally. This replaces the old text-tag
 [SECTION:id] parsing approach with a real tool call.
+
+Everything you write is spoken aloud by TTS. When you use an acronym or
+initialism that should be read letter-by-letter (VFX, ADR, DCP, SVOD, IP),
+write it with spaces between the letters — "V F X" not "VFX". Without the
+spacing, the TTS engine may guess wrong and try to pronounce it as a word.
+Do not do this for words that happen to be all-caps for emphasis or as a UI
+label (like a building name) — write those in normal sentence case when you
+say them, since normal capitalization reads more naturally than all-caps.
 """
 
 

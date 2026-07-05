@@ -28,6 +28,21 @@ Session AD change:
   AVATAR_ROTATION_SECONDS (270s, 30s margin before the cap), reusing the
   Session AC billing-stop close/reopen plumbing. Rotation is cancelled
   cleanly on manual toggle-off so it doesn't fire against a closed session.
+- Cartesia pronunciation_dict_id and speed wired via env vars
+  (CARTESIA_PRONUNCIATION_DICT_ID, CARTESIA_TTS_SPEED). Neither is
+  verifiable from this side — both require Lee to test by ear — so they're
+  tunable without a code change rather than hardcoded to a guessed value.
+  Both only take effect on sonic-3 (already this project's default model).
+- Switched model sonic-3 -> sonic-3.5 and voice Parker -> Jameson
+  (a5136bf9-224c-4d76-b823-52bd5efcffcc, en-US male), per Cartesia's own
+  docs: sonic-3.5 claims "dramatically better alphanumeric read-out" and
+  fixed English heteronym pronunciation in context — direct match for the
+  mispronunciation reports on this project. Documented as a drop-in
+  replacement (same voice IDs, same request shape). Tradeoff: speed/volume
+  controls are temporarily disabled on sonic-3.5 per Cartesia's migration
+  notes, so CARTESIA_TTS_SPEED is currently a no-op — left wired since it's
+  harmless and matters again if this ever reverts to sonic-3. Unverified
+  until Lee hears it live.
 """
 
 import asyncio
@@ -62,6 +77,15 @@ from prompts import (
 logger = logging.getLogger("futureyou-agent")
 
 RUNWAY_AVATAR_ID = os.environ.get("RUNWAY_AVATAR_ID")  # SCP DUDE avatar_id, dev.runwayml.com
+
+# Session AD: pronunciation dict + speed are env-driven, not hardcoded — neither
+# is verifiable without hearing the actual audio output, so these need Lee to
+# test values by ear rather than Claude picking a number blind. Both only take
+# effect on sonic-3 (already the plugin default). Empty/unset = no change from
+# current behavior.
+CARTESIA_PRONUNCIATION_DICT_ID = os.environ.get("CARTESIA_PRONUNCIATION_DICT_ID") or None
+_raw_speed = os.environ.get("CARTESIA_TTS_SPEED")
+CARTESIA_TTS_SPEED = float(_raw_speed) if _raw_speed else None
 
 
 class FutureYouAgent(Agent):
@@ -104,7 +128,12 @@ async def entrypoint(ctx: JobContext) -> None:
     session = AgentSession(
         llm=anthropic.LLM(model="claude-sonnet-4-6"),
         stt=deepgram.STT(model="nova-2"),
-        tts=cartesia.TTS(voice="30894953-bcce-41fe-892c-15ce19c843ff"),
+        tts=cartesia.TTS(
+            model="sonic-3.5",
+            voice="a5136bf9-224c-4d76-b823-52bd5efcffcc",  # Jameson, en-US male
+            pronunciation_dict_id=CARTESIA_PRONUNCIATION_DICT_ID,
+            speed=CARTESIA_TTS_SPEED,  # no-op on sonic-3.5 — speed/volume controls temporarily disabled per Cartesia's migration notes
+        ),
     )
 
     # avatar_state holds the live runway.AvatarSession (or None when toggled off).
@@ -248,7 +277,12 @@ def prewarm(proc: JobProcess) -> None:
     proc.userdata["models"] = {
         "llm": anthropic.LLM(model="claude-sonnet-4-6"),
         "stt": deepgram.STT(model="nova-2"),
-        "tts": cartesia.TTS(voice="30894953-bcce-41fe-892c-15ce19c843ff"),
+        "tts": cartesia.TTS(
+            model="sonic-3.5",
+            voice="a5136bf9-224c-4d76-b823-52bd5efcffcc",
+            pronunciation_dict_id=CARTESIA_PRONUNCIATION_DICT_ID,
+            speed=CARTESIA_TTS_SPEED,
+        ),
     }
 
 
