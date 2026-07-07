@@ -87,6 +87,15 @@ that section's id. Don't narrate the navigation out loud — just call the
 tool and keep talking naturally. This replaces the old text-tag
 [SECTION:id] parsing approach with a real tool call.
 
+When a step calls for a generated visual (image, mood board, storyboard —
+check the step's TOOL ROUTING) and you and the creator have confirmed a
+specific direction, call the generate_visual tool with that step's exact
+title and your own distilled description of what to generate. This is your
+only way to actually produce a visual. Do not write out a long prompt in
+chat and ask "go ahead?" without calling the tool, and never tell the
+creator you can't generate it or that they need to do it themselves — you
+can, via this tool. Call it, then tell them to watch the canvas.
+
 WHEN A BUILDING IS FULLY COMPLETE (every section, every step captured):
 State it plainly, tell the creator what just happened to their work, then
 propose the next building by name — don't just trail off or wait to be
@@ -126,12 +135,18 @@ def build_fy_instructions(formation_context: dict) -> str:
         "active_building": str,
         "active_section": str,
         "sections": [{"id": str, "title": str, "status": str}, ...],
-        "building_spec": str  # optional — full markdown spec for the
+        "building_spec": str,  # optional — full markdown spec for the
                               # active building (section/step schema,
                               # success states, tool routing). Only
                               # present for buildings with a completed
                               # spec file (see BUILDING_SPEC_FILES in
-                              # main.py). Currently: ideate only.
+                              # main.py). Currently: ideate, develop.
+        "captured_steps": [  # optional — existing (non-superseded) Vault
+                              # entries for this building, so FY knows
+                              # what's already answered instead of only
+                              # seeing section-level status.
+          {"section_name": str, "step_title": str, "captured_answer": str}
+        ]
       },
       "conversation_thread": [
         {"role": "user"|"assistant", "content": str}, ...
@@ -184,6 +199,24 @@ def build_fy_instructions(formation_context: dict) -> str:
                 f"Sections in this project:\n{section_lines}"
             )
 
+        captured_steps = active_project.get("captured_steps") or []
+        if captured_steps:
+            captured_lines = "\n".join(
+                f"  - {c.get('section_name')} / {c.get('step_title')}: "
+                f"{c.get('captured_answer')}"
+                for c in captured_steps
+            )
+            parts.append(
+                "STEPS ALREADY CAPTURED IN VAULT FOR THIS BUILDING — do not "
+                "re-ask these from scratch, the creator already answered "
+                "them (possibly in an earlier session or during triage "
+                "before landing here). If one of these is relevant right "
+                "now, reference the captured answer directly instead of "
+                "asking the underlying question again. Only revisit one if "
+                "the creator brings genuinely new information that changes "
+                "it:\n" + captured_lines
+            )
+
         building_spec = active_project.get("building_spec")
         if building_spec:
             parts.append(
@@ -196,8 +229,11 @@ def build_fy_instructions(formation_context: dict) -> str:
                 "step. Do not invent your own question sequence, skip "
                 "steps, or rename a step — if the creator's answer already "
                 "covers a later step, still confirm it explicitly against "
-                "that step's own prompt before marking it done. FAILURE "
-                "STATE entries tell you what NOT to do, not extra "
+                "that step's own prompt before marking it done. Check the "
+                "STEPS ALREADY CAPTURED list above first — if a step is "
+                "already there, treat it as done and move to the next "
+                "uncaptured step, don't restart the section from the top. "
+                "FAILURE STATE entries tell you what NOT to do, not extra "
                 "flexibility:\n\n" + building_spec
             )
 

@@ -166,6 +166,44 @@ class FutureYouAgent(Agent):
         )
         return "captured"
 
+    @function_tool()
+    async def generate_visual(
+        self, context: RunContext, task_title: str, visual_prompt: str
+    ) -> str:
+        """Call this when a step calls for a generated image (e.g. "First
+        Visual Instinct") and you and the creator have landed on a specific,
+        confirmed visual direction. This is the ONLY way to actually
+        produce the visual — you have no other tool and no ability to
+        generate it yourself outside this call. Never tell the creator you
+        can't call the generator or that they need to do it themselves;
+        call this tool instead and let the canvas show the result.
+
+        Args:
+            task_title: The exact step title this generation is for (e.g.
+                "First Visual Instinct") — must match the step's title
+                exactly so the canvas knows which step's generator to use.
+            visual_prompt: Your own distilled description of the visual —
+                subject, setting, mood, lighting, style — written in your
+                own words from the conversation, not a verbatim quote.
+        """
+        payload = json.dumps(
+            {
+                "type": "fy_generate_visual",
+                "task_title": task_title,
+                "visual_prompt": visual_prompt,
+            }
+        ).encode("utf-8")
+        try:
+            await self._room.local_participant.publish_data(
+                payload, topic="fy_directive"
+            )
+        except Exception:
+            logger.exception(
+                "Failed to publish generate_visual for %s", task_title
+            )
+        logger.info("FY triggered visual generation: task=%s", task_title)
+        return "Generation started — tell the creator to watch the canvas, do not say you can't do this yourself."
+
 
 async def entrypoint(ctx: JobContext) -> None:
     await ctx.connect()
