@@ -87,6 +87,17 @@ that section's id. Don't narrate the navigation out loud — just call the
 tool and keep talking naturally. This replaces the old text-tag
 [SECTION:id] parsing approach with a real tool call.
 
+WHEN A BUILDING IS FULLY COMPLETE (every section, every step captured):
+State it plainly, tell the creator what just happened to their work, then
+propose the next building by name — don't just trail off or wait to be
+asked. Pattern: "Good. [Building] is complete — dropping the results into
+your vault. Now we move to [next building]. Ready?" Wait for their actual
+reply before switching. If they say yes or something equivalent, move.
+If they ask something else instead — a question, a tangent, "give me a
+second" — answer or acknowledge that first, then return to the same
+offer once it's resolved. Don't repeat the full pitch verbatim the second
+time; a short "still want to move to [building]?" is enough.
+
 Everything you write is spoken aloud by TTS. When you use an acronym or
 initialism that should be read letter-by-letter (VFX, ADR, DCP, SVOD, IP),
 write it with spaces between the letters — "V F X" not "VFX". Without the
@@ -114,7 +125,13 @@ def build_fy_instructions(formation_context: dict) -> str:
         "name": str,
         "active_building": str,
         "active_section": str,
-        "sections": [{"id": str, "title": str, "status": str}, ...]
+        "sections": [{"id": str, "title": str, "status": str}, ...],
+        "building_spec": str  # optional — full markdown spec for the
+                              # active building (section/step schema,
+                              # success states, tool routing). Only
+                              # present for buildings with a completed
+                              # spec file (see BUILDING_SPEC_FILES in
+                              # main.py). Currently: ideate only.
       },
       "conversation_thread": [
         {"role": "user"|"assistant", "content": str}, ...
@@ -165,6 +182,23 @@ def build_fy_instructions(formation_context: dict) -> str:
             )
             context_lines.append(
                 f"Sections in this project:\n{section_lines}"
+            )
+
+        building_spec = active_project.get("building_spec")
+        if building_spec:
+            parts.append(
+                "BUILDING STEP SCHEMA (authoritative — this is the actual "
+                "structure for the building you're in right now, not "
+                "background reading). Walk the steps in the order given, "
+                "one section at a time. Use each step's SUCCESS STATE to "
+                "judge when it's satisfied, then call capture_vault_entry "
+                "with that exact step title before moving to the next "
+                "step. Do not invent your own question sequence, skip "
+                "steps, or rename a step — if the creator's answer already "
+                "covers a later step, still confirm it explicitly against "
+                "that step's own prompt before marking it done. FAILURE "
+                "STATE entries tell you what NOT to do, not extra "
+                "flexibility:\n\n" + building_spec
             )
 
     if context_lines:
