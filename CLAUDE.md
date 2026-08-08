@@ -1,7 +1,7 @@
 # CLAUDE.md - StudioYou FY Agent
 
-**Last updated:** 2026-08-07 (dev-session-protocol bootstrap)
-**Next session opens with:** review the untracked `.dockerignore` / `livekit.toml` files noted below and confirm nothing else has drifted; otherwise pick up wherever the last real work session left off (this repo had no CLAUDE.md before today, so no carried-forward task list exists yet — check `studioyou-backend/CLAUDE.md`'s FY Agent Reference section for the fuller picture until this file grows its own).
+**Last updated:** 2026-08-07 (dev-session-protocol bootstrap, closed same day)
+**Next session opens with:** no carried-forward task list — pick up wherever the last real work session left off (this repo had no CLAUDE.md before today, so check `studioyou-backend/CLAUDE.md`'s FY Agent Reference section for the fuller picture until this file grows its own).
 
 ## What this is
 
@@ -23,4 +23,6 @@ See `SERVICES.md` for what this repo depends on externally.
 ## Open items
 
 - [ ] Fold the FY Agent history currently living in `studioyou-backend/CLAUDE.md` into this repo's own `handoffs/` over time, so this repo's history isn't split across two files.
-- [ ] Confirm whether the two untracked files present before this session (`.dockerignore`, `livekit.toml`) were intentional additions never committed, or should be reviewed further — see `handoffs/2026-08-07-protocol-bootstrap.md`.
+- [x] `.dockerignore` and `livekit.toml` — committed 2026-08-07 per Lee's decision.
+
+Repo is clean and fully pushed to GitHub as of session close (2026-08-07).
