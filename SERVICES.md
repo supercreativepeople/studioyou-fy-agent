@@ -52,3 +52,13 @@ Per Lee (2026-08-09) the avatar feature itself is confirmed working. Neither of 
 - [ ] Fold the FY Agent history currently living in `studioyou-backend/CLAUDE.md` into this repo's own `handoffs/` over time.
 
 Note: `.env` in this repo is properly gitignored and was confirmed not tracked in git history as of 2026-08-07.
+
+## Asset class correction (2026-08-09)
+
+`Lee (personal)` in the Billing Entity column is **not** a defect on every row. Lee operates as an independent builder; his personal accounts and cards fund his own activities and have never been commingled with SCP Inc. or any other company. Personal tooling on a personal card is correct and stays that way.
+
+The real finding is **asset control**: which accounts a Frisson-owned product cannot operate without, while being held in Lee's personal name. The IP assignment moved StudioYou and SCREENBot to Frisson; it did not move the domain registrations, platform accounts, or API keys those products run on. That is a completeness gap in the assignment, not a hygiene failure.
+
+Separately: every vendor account was signed up via `supercreativepeople@gmail.com` with the company name listed as **"SuperCreativePeople"** (name only, no EIN, no entity linkage). SCP Inc. is the one entity deliberately excluded from every program application, so having it named on the infrastructure is a needless inconsistency. **Decision: strip the SCP name now; do not replace with Frisson until Frisson has a payment instrument.** Do not touch GCP billing account `019309-BEB782-398472` while the Google for Startups application is under review.
+
+Full analysis, the company-dependent asset list, and the open items live in `studioyou-backend/SERVICES.md`.
