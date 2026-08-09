@@ -21,7 +21,7 @@ Four columns added: `Billing Entity`, `Account Standing`, `Cost / Balance`, `Blo
 | Service | Category | Purpose | Billing Entity | Account Standing | Cost / Balance | Blocks Alpha | Account / Org ID | Console URL | Subscription / Tier | Renewal | Credential Location | Status | Last Verified |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | GitHub - studioyou-fy-agent | Other | Source code, CLAUDE.md, handoffs/ | Free / no billing | Free tier | $0 | no | github.com/supercreativepeople | https://github.com/supercreativepeople/studioyou-fy-agent | free | n/a | git credential helper (osxkeychain, de-tokenized 2026-08-07) | Active | 2026-08-07 |
-| LiveKit Cloud | Hosting/Realtime | Voice/video agent runtime, FutureYou conversation rooms | Lee (personal) | **Balance due** | **$50 outstanding, unpaid** | **YES** | studioyou-futureyou-avatar-749nqz32.livekit.cloud, Agent ID CA_Mnhkjj3mUr7T | cloud.livekit.io | unconfirmed tier | n/a | LIVEKIT_URL / LIVEKIT_API_KEY / LIVEKIT_API_SECRET in .env | Active | 2026-08-09 |
+| LiveKit Cloud | Hosting/Realtime | Voice/video agent runtime, FutureYou conversation rooms | Lee (personal) | **Balance due** | **$50 owed, account still LIVE** | no | studioyou-futureyou-avatar-749nqz32.livekit.cloud, Agent ID CA_Mnhkjj3mUr7T | cloud.livekit.io | unconfirmed tier | n/a | LIVEKIT_URL / LIVEKIT_API_KEY / LIVEKIT_API_SECRET in .env | Active | 2026-08-09 |
 | Runway | AI/API | Live avatar video rendering. Replaced Tavus as of Session AA | Lee (personal) | **Credits exhausted** | **needs top-up, amount TBD** | **YES** | RUNWAY_AVATAR_ID | runwayml.com | unconfirmed | n/a | RUNWAYML_API_SECRET / RUNWAY_AVATAR_ID in .env | Active | 2026-08-09 |
 | Deepgram | AI/API | Speech-to-text (nova-3) for the FY voice agent | Lee (personal) | Unconfirmed | unconfirmed | unknown | - | deepgram.com | unconfirmed | n/a | **DEEPGRAM_API_KEY in .env (own key)** | Needs Verification | 2026-08-09 (corrected) |
 | Cartesia | AI/API | Text-to-speech (sonic) for the FY voice agent | Lee (personal) | Unconfirmed | unconfirmed | unknown | - | cartesia.ai | unconfirmed | n/a | **CARTESIA_API_KEY in .env (own key)**, plus CARTESIA_PRONUNCIATION_DICT_ID, CARTESIA_TTS_SPEED | Needs Verification | 2026-08-09 (corrected) |
@@ -34,14 +34,13 @@ The previous version of this file, and this repo's `CLAUDE.md`, both stated: "ST
 
 That is wrong. `.env` in this repo contains standalone `DEEPGRAM_API_KEY` and `CARTESIA_API_KEY` entries. Both are therefore separately billed accounts that the tracker could not see, with unknown standing and unknown billing owner. They are now listed as their own rows above.
 
-## Both alpha blockers live in this repo
+## One hard blocker lives in this repo (corrected 2026-08-09)
 
-The two accounts currently preventing the live IDEATE retest, and therefore alpha close, are both owned here:
+**Runway, credits exhausted.** Without it the avatar cannot render, so no live FY session can run. This is the sole hard blocker on the live IDEATE retest and therefore on alpha close.
 
-1. **LiveKit, $50 due.** Without it the agent cannot hold a conversation room.
-2. **Runway, credits exhausted.** Without it the avatar cannot render.
+**LiveKit, $50 owed, but the account is still live.** An earlier version of this file listed LiveKit as a second blocker. Lee confirmed the account has not been suspended, so the balance is owed rather than blocking. LiveKit is also first on his AIEWF follow-up list and may yield a partnership track that removes the $50 entirely; if not, he renews 2026-08-10.
 
-Per Lee (2026-08-09) the avatar feature itself is confirmed working. Neither of these is a technical failure; both are funding gaps.
+Per Lee the avatar feature itself is confirmed working. This is a funding gap, not a technical failure.
 
 ## Open items
 
