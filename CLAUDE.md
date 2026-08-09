@@ -11,7 +11,8 @@ The LiveKit voice/video agent process for StudioYou's "FutureYou" (FY) conversat
 
 - Agent ID `CA_Mnhkjj3mUr7T`, running on LiveKit Cloud (us-east).
 - Avatar rendering provider is **Runway** (`RUNWAYML_API_SECRET`, `RUNWAY_AVATAR_ID`), replacing Tavus as of an earlier session. Tavus env vars may still be referenced elsewhere as legacy/unused — see `studioyou-backend/CLAUDE.md` for that history.
-- STT/TTS via LiveKit Inference (Deepgram nova-3 / Cartesia sonic), no separate keys needed beyond the LiveKit credentials.
+- STT/TTS is Deepgram nova-3 and Cartesia sonic. **Corrected 2026-08-09: these are NOT keyless.** This file previously claimed "no separate keys needed beyond the LiveKit credentials," which is wrong. `.env` contains standalone `DEEPGRAM_API_KEY` and `CARTESIA_API_KEY`, so both are separately billed accounts. Their standing and billing owner are unconfirmed and either could be a hidden blocker. See `SERVICES.md`.
+- **Blocked as of 2026-08-09:** LiveKit has a **$50 balance due, unpaid**, and Runway's **credits are exhausted**. No live FY session can run until both are settled. The avatar feature itself is confirmed working; these are funding gaps, not technical failures.
 - `.env` is properly gitignored and confirmed not tracked in git history.
 
 ## Protocol structure (added 2026-08-07)
