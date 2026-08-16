@@ -49,6 +49,7 @@ Per Lee the avatar feature itself is confirmed working. This is a funding gap, n
 - [ ] Confirm Deepgram and Cartesia account standing and billing owner. Either could be a third hidden blocker.
 - [ ] Billing entity audit: confirm which of these accounts bill to Frisson Digital, Inc. versus a personal card.
 - [ ] Remove the unused `TAVUS_*` entries from `.env` — backend's Tavus code paths were stripped 2026-08-15 (studioyou-backend commit `5172736`), this repo's `.env` cleanup is the remaining half.
+- [x] Supabase (shared, backend's `fy_vault_entries`) confirmed `ACTIVE_HEALTHY` 2026-08-16 after a free-tier 7-day-idle auto-pause. Not this repo's dependency directly, but relevant if a live FY session needs vault writes — see `studioyou-backend/SERVICES.md`.
 - [ ] Fold the FY Agent history currently living in `studioyou-backend/CLAUDE.md` into this repo's own `handoffs/` over time.
 
 Note: `.env` in this repo is properly gitignored and was confirmed not tracked in git history as of 2026-08-07.
