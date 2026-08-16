@@ -22,7 +22,7 @@ Four columns added: `Billing Entity`, `Account Standing`, `Cost / Balance`, `Blo
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | GitHub - studioyou-fy-agent | Other | Source code, CLAUDE.md, handoffs/ | Free / no billing | Free tier | $0 | no | github.com/supercreativepeople | https://github.com/supercreativepeople/studioyou-fy-agent | free | n/a | git credential helper (osxkeychain, de-tokenized 2026-08-07) | Active | 2026-08-07 |
 | LiveKit Cloud | Hosting/Realtime | Voice/video agent runtime, FutureYou conversation rooms | Lee (personal) | Paid / current | **$50/mo recurring (Ship plan), renews Sept 1** | no | studioyou-futureyou-avatar-749nqz32.livekit.cloud, Agent ID CA_Mnhkjj3mUr7T | cloud.livekit.io | unconfirmed tier | n/a | LIVEKIT_URL / LIVEKIT_API_KEY / LIVEKIT_API_SECRET in .env | Active | 2026-08-09 |
-| Runway | AI/API | Live avatar video rendering. Replaced Tavus as of Session AA | Lee (personal) | **Credits exhausted** | **needs top-up, amount TBD** | **YES** | RUNWAY_AVATAR_ID | runwayml.com | unconfirmed | n/a | RUNWAYML_API_SECRET / RUNWAY_AVATAR_ID in .env | Active | 2026-08-09 |
+| Runway | AI/API | Live avatar video rendering. Replaced Tavus as of Session AA | Lee (personal) | Paid / current | topped up 2026-08-15 | no | RUNWAY_AVATAR_ID | runwayml.com | unconfirmed | n/a | RUNWAYML_API_SECRET / RUNWAY_AVATAR_ID in .env | Active | 2026-08-15 |
 | Deepgram | AI/API | Speech-to-text (nova-3) for the FY voice agent | Lee (personal) | Unconfirmed | unconfirmed | unknown | - | deepgram.com | unconfirmed | n/a | **DEEPGRAM_API_KEY in .env (own key)** | Needs Verification | 2026-08-09 (corrected) |
 | Cartesia | AI/API | Text-to-speech (sonic) for the FY voice agent | Lee (personal) | Unconfirmed | unconfirmed | unknown | - | cartesia.ai | unconfirmed | n/a | **CARTESIA_API_KEY in .env (own key)**, plus CARTESIA_PRONUNCIATION_DICT_ID, CARTESIA_TTS_SPEED | Needs Verification | 2026-08-09 (corrected) |
 | Anthropic API (shared) | AI/API | Claude, agent conversation logic | Lee (personal) | Unconfirmed | see studioyou-backend/SERVICES.md | no | - | platform.claude.com | pay-as-you-go | n/a | ANTHROPIC_API_KEY in .env | Active | 2026-08-09 |
@@ -34,9 +34,9 @@ The previous version of this file, and this repo's `CLAUDE.md`, both stated: "ST
 
 That is wrong. `.env` in this repo contains standalone `DEEPGRAM_API_KEY` and `CARTESIA_API_KEY` entries. Both are therefore separately billed accounts that the tracker could not see, with unknown standing and unknown billing owner. They are now listed as their own rows above.
 
-## One hard blocker lives in this repo (corrected 2026-08-09)
+## Prior hard blocker, resolved 2026-08-15
 
-**Runway, credits exhausted.** Without it the avatar cannot render, so no live FY session can run. This is the sole hard blocker on the live IDEATE retest and therefore on alpha close.
+**Runway topped up by Lee.** Was the sole hard blocker on the live IDEATE retest. No known blocker remains on running a live FY session as of this date — retest still needs to actually happen to confirm.
 
 **LiveKit is not a blocker and was never in arrears.** Verified from the billing console 2026-08-09: it is a **$50/month recurring subscription** on the Ship plan, project `p_3abx9tkixic`, next cycle Sept 1 2026, fully current. July used 2,645 of 5,000 included agent session minutes and 8GB of 250GB downstream, all inside plan. **August usage is 0 GB** — the agent has not run this month, so that $50 is buying idle capacity. LiveKit is first on Lee's AIEWF follow-up list with a possible partnership track; do not downgrade before that conversation.
 
@@ -44,10 +44,11 @@ Per Lee the avatar feature itself is confirmed working. This is a funding gap, n
 
 ## Open items
 
-- [ ] Settle the LiveKit balance and top up Runway. Until both are done, no live FY session can run.
+- [x] Top up Runway — done 2026-08-15. LiveKit was never actually in arrears.
+- [ ] Run the live IDEATE retest now that funding is clear.
 - [ ] Confirm Deepgram and Cartesia account standing and billing owner. Either could be a third hidden blocker.
 - [ ] Billing entity audit: confirm which of these accounts bill to Frisson Digital, Inc. versus a personal card.
-- [ ] Remove the unused `TAVUS_*` entries from `.env` once the backend's Tavus code paths are stripped.
+- [ ] Remove the unused `TAVUS_*` entries from `.env` — backend's Tavus code paths were stripped 2026-08-15 (studioyou-backend commit `5172736`), this repo's `.env` cleanup is the remaining half.
 - [ ] Fold the FY Agent history currently living in `studioyou-backend/CLAUDE.md` into this repo's own `handoffs/` over time.
 
 Note: `.env` in this repo is properly gitignored and was confirmed not tracked in git history as of 2026-08-07.
