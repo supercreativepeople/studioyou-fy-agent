@@ -22,9 +22,9 @@ Four columns added: `Billing Entity`, `Account Standing`, `Cost / Balance`, `Blo
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | GitHub - studioyou-fy-agent | Other | Source code, CLAUDE.md, handoffs/ | Free / no billing | Free tier | $0 | no | github.com/supercreativepeople | https://github.com/supercreativepeople/studioyou-fy-agent | free | n/a | git credential helper (osxkeychain, de-tokenized 2026-08-07) | Active | 2026-08-07 |
 | LiveKit Cloud | Hosting/Realtime | Voice/video agent runtime, FutureYou conversation rooms | Lee (personal) | Paid / current | **$50/mo recurring (Ship plan), renews Sept 1** | no | studioyou-futureyou-avatar-749nqz32.livekit.cloud, Agent ID CA_Mnhkjj3mUr7T | cloud.livekit.io | unconfirmed tier | n/a | LIVEKIT_URL / LIVEKIT_API_KEY / LIVEKIT_API_SECRET in .env | Active | 2026-08-09 |
-| Runway | AI/API | Live avatar video rendering. Replaced Tavus as of Session AA | Lee (personal) | Paid / current | topped up 2026-08-15 | no | RUNWAY_AVATAR_ID | runwayml.com | unconfirmed | n/a | RUNWAYML_API_SECRET / RUNWAY_AVATAR_ID in .env | Active | 2026-08-15 |
-| Deepgram | AI/API | Speech-to-text (nova-3) for the FY voice agent | Lee (personal) | Unconfirmed | unconfirmed | unknown | - | deepgram.com | unconfirmed | n/a | **DEEPGRAM_API_KEY in .env (own key)** | Needs Verification | 2026-08-09 (corrected) |
-| Cartesia | AI/API | Text-to-speech (sonic) for the FY voice agent | Lee (personal) | Unconfirmed | unconfirmed | unknown | - | cartesia.ai | unconfirmed | n/a | **CARTESIA_API_KEY in .env (own key)**, plus CARTESIA_PRONUNCIATION_DICT_ID, CARTESIA_TTS_SPEED | Needs Verification | 2026-08-09 (corrected) |
+| Runway | AI/API | Live avatar video rendering. Replaced Tavus as of Session AA | Lee (personal) | Paid / current | $25.00 charged 08/11/2026 for 2,500 credits (corrected 2026-08-17 — prior entry said $20 on 08-15, both wrong per live console). 2,500 credits on hand, zero usage since. Auto-billing OFF, no card saved. | no | RUNWAY_AVATAR_ID | runwayml.com | unconfirmed | n/a | RUNWAYML_API_SECRET / RUNWAY_AVATAR_ID in .env | Active | 2026-08-17 (live-verified) |
+| Deepgram | AI/API | Speech-to-text (nova-3) for the FY voice agent | Lee (personal) | Paid / current | $199.61 credit remaining, Pay-As-You-Go, no past due. Auto-reload OFF (same silent-zero risk pattern as Runway's July incident) | no | project 896b6a42-9edd-4194-aabd-3d61cbaf9e01 | console.deepgram.com | Pay As You Go | n/a | **DEEPGRAM_API_KEY in .env (own key)** | Active | 2026-08-17 (live-verified) |
+| Cartesia | AI/API | Text-to-speech (sonic) for the FY voice agent | Lee (personal) | Paid / current | Pro plan $5/mo, renews Sep 5 2026. 170,298 model credits + $10.00 voice-agent dollars remaining. Overages disabled — hard stop at zero, not silent overbilling | no | - | play.cartesia.ai | Pro | 2026-09-05 | **CARTESIA_API_KEY in .env (own key)**, plus CARTESIA_PRONUNCIATION_DICT_ID, CARTESIA_TTS_SPEED | Active | 2026-08-17 (live-verified) |
 | Anthropic API (shared) | AI/API | Claude, agent conversation logic | Lee (personal) | Unconfirmed | see studioyou-backend/SERVICES.md | no | - | platform.claude.com | pay-as-you-go | n/a | ANTHROPIC_API_KEY in .env | Active | 2026-08-09 |
 | Tavus | AI/API | **Deprecated.** Former avatar provider | Lee (personal) | Unconfirmed | unconfirmed | no | tavusapi.com | tavusapi.com | unconfirmed | n/a | TAVUS_API_KEY / TAVUS_LIVEKIT_PERSONA_ID / TAVUS_REPLICA_ID still in .env, unused here | Deprecated | 2026-08-09 |
 
@@ -33,6 +33,16 @@ Four columns added: `Billing Entity`, `Account Standing`, `Cost / Balance`, `Blo
 The previous version of this file, and this repo's `CLAUDE.md`, both stated: "STT/TTS via LiveKit Inference (Deepgram nova-3 / Cartesia sonic), **no separate keys needed beyond the LiveKit credentials**."
 
 That is wrong. `.env` in this repo contains standalone `DEEPGRAM_API_KEY` and `CARTESIA_API_KEY` entries. Both are therefore separately billed accounts that the tracker could not see, with unknown standing and unknown billing owner. They are now listed as their own rows above.
+
+## Corrected 2026-08-17 — Runway top-up details and LiveKit plan status, both live-verified
+
+Two factual corrections found while verifying billing status against the live consoles (not the tracker, not memory):
+
+**Runway.** The top-up was **$25.00 on 08/11/2026 for 2,500 credits** — this file and the cross-project registry had logged it as $20 on 08-15. Both the date and the amount were wrong. Current balance: 2,500 credits, zero generations in the last 7 days. Auto-billing is still off and no card is saved, which is the exact condition that let the balance hit zero silently in July — worth fixing before the next live test burns through this balance the same way.
+
+**LiveKit.** Checked live against `cloud.livekit.io` after a conflicting recollection that it might be back on a free plan: it is **not**. Current plan is Ship, $50.00/month, next invoice due Sept 1 2026. Only one project exists on the account (`StudioYou-FutureYou-Avatar`, `p_3abx9tkixic`) — there is no separate free-tier project it could have been confused with. This matches what was already recorded 2026-08-09; the plan itself hasn't changed, only the confidence in it needed re-establishing.
+
+**Why this matters beyond the two numbers.** Every IDEATE retest calls both Runway and LiveKit as part of the avatar pipeline, and Runway is the one that burns fastest per session. A tracker that's a few days stale on exactly the two services a live test depends on is the same failure mode that caused the July exhaustion in the first place — the balance was fine until a session found out otherwise. Deepgram and Cartesia were also re-verified live this session (see rows above) and matched what was already recorded — no drift there.
 
 ## Prior hard blocker, resolved 2026-08-15
 
@@ -46,7 +56,7 @@ Per Lee the avatar feature itself is confirmed working. This is a funding gap, n
 
 - [x] Top up Runway — done 2026-08-15. LiveKit was never actually in arrears.
 - [ ] Run the live IDEATE retest now that funding is clear.
-- [ ] Confirm Deepgram and Cartesia account standing and billing owner. Either could be a third hidden blocker.
+- [x] ~~Confirm Deepgram and Cartesia account standing~~ — resolved 2026-08-17, live-verified against both consoles. Deepgram: Pay-As-You-Go, $199.61 balance, no past due. Cartesia: Pro $5/mo, 170,298 model credits + $10 voice-agent dollars, renews Sep 5. Neither blocks a retest. Billing owner (which entity pays) is Lee personal on supercreativepeople@gmail.com, same as every other vendor account — not a separate open question.
 - [ ] Billing entity audit: confirm which of these accounts bill to Frisson Digital, Inc. versus a personal card.
 - [ ] Remove the unused `TAVUS_*` entries from `.env` — backend's Tavus code paths were stripped 2026-08-15 (studioyou-backend commit `5172736`), this repo's `.env` cleanup is the remaining half.
 - [x] Supabase (shared, backend's `fy_vault_entries`) confirmed `ACTIVE_HEALTHY` 2026-08-16 after a free-tier 7-day-idle auto-pause. Not this repo's dependency directly, but relevant if a live FY session needs vault writes — see `studioyou-backend/SERVICES.md`.
