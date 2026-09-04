@@ -22,7 +22,7 @@ Four columns added: `Billing Entity`, `Account Standing`, `Cost / Balance`, `Blo
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | GitHub - studioyou-fy-agent | Other | Source code, CLAUDE.md, handoffs/ | Free / no billing | Free tier | $0 | no | github.com/supercreativepeople | https://github.com/supercreativepeople/studioyou-fy-agent | free | n/a | git credential helper (osxkeychain, de-tokenized 2026-08-07) | Active | 2026-08-07 |
 | LiveKit Cloud | Hosting/Realtime | Voice/video agent runtime, FutureYou conversation rooms | Lee (personal) | Paid / current | **$50/mo recurring (Ship plan), renews Sept 1** | no | studioyou-futureyou-avatar-749nqz32.livekit.cloud, Agent ID CA_Mnhkjj3mUr7T | cloud.livekit.io | unconfirmed tier | n/a | LIVEKIT_URL / LIVEKIT_API_KEY / LIVEKIT_API_SECRET in .env | Active | 2026-08-09 |
-| Runway | AI/API | Live avatar video rendering. Replaced Tavus as of Session AA | Lee (personal) | Paid / current | $25.00 charged 08/11/2026 for 2,500 credits (corrected 2026-08-17 — prior entry said $20 on 08-15, both wrong per live console). 2,500 credits on hand, zero usage since. Auto-billing OFF, no card saved. | no | RUNWAY_AVATAR_ID | runwayml.com | unconfirmed | n/a | RUNWAYML_API_SECRET / RUNWAY_AVATAR_ID in .env | Active | 2026-08-17 (live-verified) |
+| Runway | AI/API | Live avatar video rendering. Replaced Tavus as of Session AA | Lee (personal) | Paid / current | $25.00 charged 08/11/2026 for 2,500 credits (corrected 2026-08-17 — prior entry said $20 on 08-15, both wrong per live console). **BALANCE 0 as of 2026-09-04 (live-verified via API).** Was $25.00 charged 08/11/2026 for 2,500 credits; those credits are now fully consumed. Auto-billing OFF, no card saved. | **YES — blocks any live avatar work** | RUNWAY_AVATAR_ID | runwayml.com | unconfirmed | n/a | RUNWAYML_API_SECRET / RUNWAY_AVATAR_ID in .env | **Out of credits** | 2026-09-04 (live-verified via GET /v1/organization) |
 | Deepgram | AI/API | Speech-to-text (nova-3) for the FY voice agent | Lee (personal) | Paid / current | $199.61 credit remaining, Pay-As-You-Go, no past due. Auto-reload OFF (same silent-zero risk pattern as Runway's July incident) | no | project 896b6a42-9edd-4194-aabd-3d61cbaf9e01 | console.deepgram.com | Pay As You Go | n/a | **DEEPGRAM_API_KEY in .env (own key)** | Active | 2026-08-17 (live-verified) |
 | Cartesia | AI/API | Text-to-speech (sonic) for the FY voice agent | Lee (personal) | Paid / current | Pro plan $5/mo, renews Sep 5 2026. 170,298 model credits + $10.00 voice-agent dollars remaining. Overages disabled — hard stop at zero, not silent overbilling | no | - | play.cartesia.ai | Pro | 2026-09-05 | **CARTESIA_API_KEY in .env (own key)**, plus CARTESIA_PRONUNCIATION_DICT_ID, CARTESIA_TTS_SPEED | Active | 2026-08-17 (live-verified) |
 | Anthropic API (shared) | AI/API | Claude, agent conversation logic | Lee (personal) | Unconfirmed | see studioyou-backend/SERVICES.md | no | - | platform.claude.com | pay-as-you-go | n/a | ANTHROPIC_API_KEY in .env | Active | 2026-08-09 |
@@ -73,3 +73,33 @@ The real finding is **asset control**: which accounts a Frisson-owned product ca
 Separately: every vendor account was signed up via `supercreativepeople@gmail.com` with the company name listed as **"SuperCreativePeople"** (name only, no EIN, no entity linkage). SCP Inc. is the one entity deliberately excluded from every program application, so having it named on the infrastructure is a needless inconsistency. **Decision: strip the SCP name now; do not replace with Frisson until Frisson has a payment instrument.** Do not touch GCP billing account `019309-BEB782-398472` while the Google for Startups application is under review.
 
 Full analysis, the company-dependent asset list, and the open items live in `studioyou-backend/SERVICES.md`.
+
+
+## CRITICAL, found at session close 2026-09-04: Runway credit balance is 0
+
+Live-verified via `GET https://api.dev.runwayml.com/v1/organization`: `creditBalance: 0`.
+
+SERVICES.md recorded 2,500 credits as of 2026-08-17 with zero usage since. Those
+credits are now gone. This is the exact silent-zero failure mode SERVICES.md already
+flagged as still live (autobilling off, no card saved), and it is almost certainly the
+eager-avatar-start drain fixed in this session having consumed the balance: the agent
+started a billed Runway session on every job, before any user interaction, and Runway
+bills 2 credits up front plus 2 per 6 seconds of active session.
+
+Impact:
+
+- Any work requiring live avatar rendering is BLOCKED until Lee tops up.
+- E2E testing is NOT blocked. The `test_mode` path shipped this session skips the
+  Runway avatar entirely and runs on Cartesia audio, so `nyclaabq@gmail.com` can
+  exercise a full FY conversation at zero credit cost. The fix shipped today is
+  precisely what makes testing possible despite the zero balance.
+- Custom avatar provisioning (`POST /v1/avatars`) will also need credits, so the
+  avatar pipeline build can proceed but cannot be live-tested until top-up.
+
+Recommendation carried forward from SERVICES.md and now urgent: enable autobilling
+with a threshold, or set a spend cap, before the next top-up. This is the second time
+the balance has reached zero silently.
+
+Account context verified same call: tier `maxMonthlyCreditSpend` 50000, and
+`gen4_image_turbo` is present in the account's available models, confirming the
+Gen-4 image path chosen for FutureYou portrait generation is actually available here.
