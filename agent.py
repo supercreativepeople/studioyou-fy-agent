@@ -32,17 +32,9 @@ Session AD change:
   (CARTESIA_PRONUNCIATION_DICT_ID, CARTESIA_TTS_SPEED). Neither is
   verifiable from this side — both require Lee to test by ear — so they're
   tunable without a code change rather than hardcoded to a guessed value.
-  Both only take effect on sonic-3 (already this project's default model).
-- Switched model sonic-3 -> sonic-3.5 and voice Parker -> Jameson
-  (a5136bf9-224c-4d76-b823-52bd5efcffcc, en-US male), per Cartesia's own
-  docs: sonic-3.5 claims "dramatically better alphanumeric read-out" and
-  fixed English heteronym pronunciation in context — direct match for the
-  mispronunciation reports on this project. Documented as a drop-in
-  replacement (same voice IDs, same request shape). Tradeoff: speed/volume
-  controls are temporarily disabled on sonic-3.5 per Cartesia's migration
-  notes, so CARTESIA_TTS_SPEED is currently a no-op — left wired since it's
-  harmless and matters again if this ever reverts to sonic-3. Unverified
-  until Lee hears it live.
+  Both only take effect on sonic-3 (this project's default model).
+  Active voice: Corey (630ed21c-2c5c-41cf-9d82-10a7fd668370), en-US male,
+  sonic-3. Voice can be updated via env if needed without a code change.
 """
 
 import asyncio
