@@ -60,7 +60,27 @@ Test the `test_mode` path end to end as `nyclaabq@gmail.com` in studio.html. Con
 
 ---
 
-## CRITICAL, found at session close 2026-09-04: Runway credit balance is 0
+## RESOLVED same session: Runway credits were 0, topped to 3,000
+
+**Resolution (2026-09-04, live-verified via `GET /v1/organization`): balance is 3,000.**
+Lee topped up Runway Dev ($30.00, 09/04/2026 11:25 AM, 3,000 credits) and **enabled
+autobilling**, set to auto-recharge whenever credits fall below 500, with a Visa card
+saved to the project. The silent-zero failure mode described below is now CLOSED for
+the first time since it was first flagged in July. Live avatar rendering and custom
+avatar provisioning are unblocked.
+
+Lifetime spend on Runway Dev is now $99.00 for 10,500 credits, roughly $0.0094 per credit.
+
+One correction this resolution surfaced: a Runway **Platform** balance of 684 credits
+was briefly read as evidence that credits were fine. It is not. Dev and Platform are
+separate accounts with separate wallets. Always verify Dev via the API, never by
+reading the Platform UI. See Locked Decisions.
+
+The original finding is preserved below for the record.
+
+---
+
+### Original finding: Runway credit balance is 0
 
 Live-verified via `GET https://api.dev.runwayml.com/v1/organization`: `creditBalance: 0`.
 

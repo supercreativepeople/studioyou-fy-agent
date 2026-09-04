@@ -22,7 +22,7 @@ Four columns added: `Billing Entity`, `Account Standing`, `Cost / Balance`, `Blo
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | GitHub - studioyou-fy-agent | Other | Source code, CLAUDE.md, handoffs/ | Free / no billing | Free tier | $0 | no | github.com/supercreativepeople | https://github.com/supercreativepeople/studioyou-fy-agent | free | n/a | git credential helper (osxkeychain, de-tokenized 2026-08-07) | Active | 2026-08-07 |
 | LiveKit Cloud | Hosting/Realtime | Voice/video agent runtime, FutureYou conversation rooms | Lee (personal) | Paid / current | **$50/mo recurring (Ship plan), renews Sept 1** | no | studioyou-futureyou-avatar-749nqz32.livekit.cloud, Agent ID CA_Mnhkjj3mUr7T | cloud.livekit.io | unconfirmed tier | n/a | LIVEKIT_URL / LIVEKIT_API_KEY / LIVEKIT_API_SECRET in .env | Active | 2026-08-09 |
-| Runway | AI/API | Live avatar video rendering. Replaced Tavus as of Session AA | Lee (personal) | Paid / current | $25.00 charged 08/11/2026 for 2,500 credits (corrected 2026-08-17 — prior entry said $20 on 08-15, both wrong per live console). **BALANCE 0 as of 2026-09-04 (live-verified via API).** Was $25.00 charged 08/11/2026 for 2,500 credits; those credits are now fully consumed. Auto-billing OFF, no card saved. | **YES — blocks any live avatar work** | RUNWAY_AVATAR_ID | runwayml.com | unconfirmed | n/a | RUNWAYML_API_SECRET / RUNWAY_AVATAR_ID in .env | **Out of credits** | 2026-09-04 (live-verified via GET /v1/organization) |
+| Runway | AI/API | Live avatar video rendering. Replaced Tavus as of Session AA | Lee (personal) | Paid / current | $25.00 charged 08/11/2026 for 2,500 credits (corrected 2026-08-17 — prior entry said $20 on 08-15, both wrong per live console). **3,000 credits as of 2026-09-04 (live-verified via API).** Topped up $30.00 on 09/04/2026 after silently hitting 0. **Autobilling ENABLED**, auto-recharges below 500 credits, Visa card saved to the project, closing the long-standing silent-zero risk. Lifetime: $99.00 for 10,500 credits (~$0.0094/credit). | no | RUNWAY_AVATAR_ID | dev.runwayml.com | pay-as-you-go + autobilling | n/a | RUNWAYML_API_SECRET / RUNWAY_AVATAR_ID in .env | Active | 2026-09-04 (live-verified via GET /v1/organization) |
 | Deepgram | AI/API | Speech-to-text (nova-3) for the FY voice agent | Lee (personal) | Paid / current | $199.61 credit remaining, Pay-As-You-Go, no past due. Auto-reload OFF (same silent-zero risk pattern as Runway's July incident) | no | project 896b6a42-9edd-4194-aabd-3d61cbaf9e01 | console.deepgram.com | Pay As You Go | n/a | **DEEPGRAM_API_KEY in .env (own key)** | Active | 2026-08-17 (live-verified) |
 | Cartesia | AI/API | Text-to-speech (sonic) for the FY voice agent | Lee (personal) | Paid / current | Pro plan $5/mo, renews Sep 5 2026. 170,298 model credits + $10.00 voice-agent dollars remaining. Overages disabled — hard stop at zero, not silent overbilling | no | - | play.cartesia.ai | Pro | 2026-09-05 | **CARTESIA_API_KEY in .env (own key)**, plus CARTESIA_PRONUNCIATION_DICT_ID, CARTESIA_TTS_SPEED | Active | 2026-08-17 (live-verified) |
 | Anthropic API (shared) | AI/API | Claude, agent conversation logic | Lee (personal) | Unconfirmed | see studioyou-backend/SERVICES.md | no | - | platform.claude.com | pay-as-you-go | n/a | ANTHROPIC_API_KEY in .env | Active | 2026-08-09 |
@@ -75,7 +75,27 @@ Separately: every vendor account was signed up via `supercreativepeople@gmail.co
 Full analysis, the company-dependent asset list, and the open items live in `studioyou-backend/SERVICES.md`.
 
 
-## CRITICAL, found at session close 2026-09-04: Runway credit balance is 0
+## RESOLVED same session: Runway credits were 0, topped to 3,000
+
+**Resolution (2026-09-04, live-verified via `GET /v1/organization`): balance is 3,000.**
+Lee topped up Runway Dev ($30.00, 09/04/2026 11:25 AM, 3,000 credits) and **enabled
+autobilling**, set to auto-recharge whenever credits fall below 500, with a Visa card
+saved to the project. The silent-zero failure mode described below is now CLOSED for
+the first time since it was first flagged in July. Live avatar rendering and custom
+avatar provisioning are unblocked.
+
+Lifetime spend on Runway Dev is now $99.00 for 10,500 credits, roughly $0.0094 per credit.
+
+One correction this resolution surfaced: a Runway **Platform** balance of 684 credits
+was briefly read as evidence that credits were fine. It is not. Dev and Platform are
+separate accounts with separate wallets. Always verify Dev via the API, never by
+reading the Platform UI. See Locked Decisions.
+
+The original finding is preserved below for the record.
+
+---
+
+### Original finding: Runway credit balance is 0
 
 Live-verified via `GET https://api.dev.runwayml.com/v1/organization`: `creditBalance: 0`.
 

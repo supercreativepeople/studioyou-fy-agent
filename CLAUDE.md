@@ -83,7 +83,7 @@ Confirm with `lk agent list` and update the version in Live State below.
 | Default avatar | "The DUDE" `d44bf1d0-c297-4e26-839a-93099a485ca5` via `RUNWAY_AVATAR_ID` |
 | Custom avatars | Agent-side complete. Reads `formation_context["runway_avatar_id"]`, falls back to default. Backend injects it from `public.creator_avatars`. Creation pipeline unbuilt. |
 | Test mode | `formation_context["test_mode"]` skips the avatar entirely. `nyclaabq@gmail.com` is the E2E test account, auto-detected backend-side. |
-| **Runway credits** | **0 as of 2026-09-04 (live-verified via `GET /v1/organization`).** Blocks live avatar rendering until top-up. `test_mode` sessions are unaffected. |
+| Runway credits (Dev) | **3,000 as of 2026-09-04 (live-verified via `GET /v1/organization`).** Autobilling ENABLED, recharges below 500, Visa saved. Live avatar rendering unblocked. |
 | Avatar rotation | 270s, guards Runway's 300s hard cap |
 | Known cleanup | `TAVUS_*` entries still in `.env`. Backend paths stripped in `5172736`; this is the remaining half. |
 
@@ -91,6 +91,7 @@ Confirm with `lk agent list` and update the version in Live State below.
 
 - **`lk agent deploy` is the deploy command (corrected 2026-09-04).** It rebuilds and preserves the agent ID. Verified twice on 2026-09-04 (16:36Z, 17:43:21Z) with `CA_Mnhkjj3mUr7T` unchanged across both. The prior guidance that only `delete && create` rebuilds, and that the agent ID changes every deploy, is obsolete. Do not delete the agent to ship a change.
 - **Runway bills on ACTIVE session time, not per utterance.** Closing the `AvatarSession` is the only way to stop the charge. Never start an avatar speculatively.
+- **Runway is TWO separate accounts.** `RUNWAYML_API_SECRET` in this repo's `.env` authenticates against Runway **Dev** (`api.dev.runwayml.com`), which is the balance the avatar spends. Runway **Platform** (`runway.com`) is a separate account with its own wallet, and a healthy Platform balance does NOT unblock the avatar. Verify with `GET https://api.dev.runwayml.com/v1/organization`, never the Platform UI.
 - **Avatar usage must be decided before `session.start()`.** `RoomOutputOptions(audio_enabled=False)` cannot be flipped after init. This is why lazy avatar start was evaluated and rejected.
 - **Runway avatar `personality` and `startScript` are INERT.** Per LiveKit's Runway docs, "LiveKit TTS settings will supersede selected voices and personalities configured for the Runway character." Cartesia generates the speech; Runway only renders lip-synced video. `prompts.py` is the actual brain. Editing The DUDE's personality in the Runway dashboard changes nothing, and a Runway-cloned voice would likewise be ignored.
 - **STT is nova-2 and TTS is sonic-3 with Corey.** Verified against code 2026-09-04. Earlier docs claiming nova-3, or a sonic-3.5/Jameson switch, were wrong. Trust the code over any doc claim here.
