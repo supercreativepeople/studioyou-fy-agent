@@ -343,11 +343,15 @@ async def entrypoint(ctx: JobContext) -> None:
         )
         logger.info("FY reply → fy_directive: %d chars", len(text))
 
-    if RUNWAY_AVATAR_ID:
+    test_mode = formation_context.get("test_mode", False)
+    if RUNWAY_AVATAR_ID and not test_mode:
         await start_avatar()
         room_output_options = RoomOutputOptions(audio_enabled=False)
     else:
-        logger.warning("RUNWAY_AVATAR_ID not set — audio/text only.")
+        if test_mode:
+            logger.info("test_mode=True — skipping Runway avatar, no credits used")
+        else:
+            logger.warning("RUNWAY_AVATAR_ID not set — audio/text only.")
         room_output_options = RoomOutputOptions()
 
     await session.start(
