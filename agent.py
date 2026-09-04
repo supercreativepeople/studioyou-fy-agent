@@ -68,7 +68,11 @@ from prompts import (
 
 logger = logging.getLogger("futureyou-agent")
 
-RUNWAY_AVATAR_ID = os.environ.get("RUNWAY_AVATAR_ID")  # SCP DUDE avatar_id, dev.runwayml.com
+# Default avatar ("The DUDE", d44bf1d0-…, dev.runwayml.com). Used by any creator
+# who has not generated their own FutureYou yet. A creator WITH a custom avatar
+# gets it per-session via formation_context["runway_avatar_id"], injected by the
+# backend from their active public.creator_avatars row.
+RUNWAY_DEFAULT_AVATAR_ID = os.environ.get("RUNWAY_AVATAR_ID")
 
 # Session AD: pronunciation dict + speed are env-driven, not hardcoded — neither
 # is verifiable without hearing the actual audio output, so these need Lee to
@@ -201,6 +205,18 @@ async def entrypoint(ctx: JobContext) -> None:
     await ctx.connect()
 
     formation_context = parse_formation_context(ctx.job.metadata)
+
+    # Per-creator FutureYou avatar. The backend injects runway_avatar_id from the
+    # creator's active creator_avatars row when they've generated their own;
+    # otherwise this falls through to the shared default. Everything downstream
+    # (open/close/rotation) uses avatar_id, never the module constant.
+    custom_avatar_id = formation_context.get("runway_avatar_id")
+    avatar_id = custom_avatar_id or RUNWAY_DEFAULT_AVATAR_ID
+    logger.info(
+        "Avatar resolved: %s",
+        "creator's custom FutureYou" if custom_avatar_id else "shared default (no custom FutureYou yet)",
+    )
+
     instructions = build_fy_instructions(formation_context)
     greeting_instruction = build_greeting_instruction(formation_context)
 
@@ -258,9 +274,9 @@ async def entrypoint(ctx: JobContext) -> None:
 
     async def _open_avatar_session():
         async with avatar_state["lock"]:
-            if avatar_state["session"] is not None or not RUNWAY_AVATAR_ID:
+            if avatar_state["session"] is not None or not avatar_id:
                 return
-            av = runway.AvatarSession(avatar_id=RUNWAY_AVATAR_ID)
+            av = runway.AvatarSession(avatar_id=avatar_id)
             await av.start(session, room=ctx.room)
             avatar_state["session"] = av
             logger.info("Avatar session started")
@@ -336,7 +352,7 @@ async def entrypoint(ctx: JobContext) -> None:
         logger.info("FY reply → fy_directive: %d chars", len(text))
 
     test_mode = formation_context.get("test_mode", False)
-    if RUNWAY_AVATAR_ID and not test_mode:
+    if avatar_id and not test_mode:
         await start_avatar()
         room_output_options = RoomOutputOptions(audio_enabled=False)
     else:
